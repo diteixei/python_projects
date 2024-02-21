@@ -1,0 +1,18 @@
+import requests
+import bs4
+
+url = 'https://ge.globo.com/futebol/times/flamengo/'
+
+requisicao = requests.get(url)
+
+pagina = bs4.BeautifulSoup(requisicao.text, "html.parser")
+
+#pegar os elementos "a" que tenham a classe "feed-post-link"
+
+lista_noticias = pagina.find_all("a", class_="feed-post-link")
+
+for noticia in lista_noticias:
+    print(noticia.text)
+    print(noticia.get("href"))
+    print("###################")
+
