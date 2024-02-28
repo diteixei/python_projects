@@ -1,0 +1,93 @@
+import requests
+from bs4 import BeautifulSoup
+
+link = "https://www.bing.com/search?q=cota%C3%A7%C3%A3o+d%C3%B3lar&cvid=cb9be5bb6bc84224b42fd7c0e148fdb6&gs_lcrp=EgZjaHJvbWUqBggBEAAYQDIGCAAQRRg5MgYIARAAGEAyBggCEAAYQDIGCAMQABhAMgYIBBAAGEAyBggFEAAYQDIGCAYQABhAMgYIBxAAGEAyBggIEEUYPNIBCDUzODhqMGo0qAIAsAIA&FORM=ANAB01&DAF0=1&PC=ACTS"
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"}
+requisicao = requests.get(link)
+print(requisicao)
+print(requisicao.text)
+site = BeautifulSoup(requisicao.text, "html.parser")
+print(site.prettify())
+
+titulo = site.find("title")
+print(titulo)
+
+pesquisa = site.find("input")
+print(pesquisa)
+
+pesquisa2 = site.find("input", class_="b_searchbox")
+print(pesquisa2)
+print(pesquisa2["value"])
+
+cotacao_dolar = site.find("div", class_="b_focusTextSmall curr_totxt")
+print(cotacao_dolar.get_text())
+
+***O erro apresentado com este código AttributeError: 'NoneType' object has no attribute 'get_text' indicava que a variável cotacao_dolar 
+estava sendo atribuída como 'None', o que significa que o BeautifulSoup não encontrou nenhum elemento 
+correspondente a pesquisa. Nesse caso, poderia ser que a classe curr_totxt não estivesse presente na 
+página ou tivesse mudado. Para evitar esse tipo de erro, sempre é bom verificar se o elemento foi encontrado 
+antes de tentar acessar seus atributos. Essa modificação verifica se cotacao_dolar é 'None' antes de tentar
+acessar o método get_text(), evitando assim o erro de atributo nulo. Se a cotação do dólar não for encontrada,
+será exibida a mensagem "Cotação do dólar não encontrada."
+
+**Mesmo com a correção o erro persistiu, 2ª tentativa de código:
+
+import requests
+from bs4 import BeautifulSoup
+
+link = "https://www.bing.com/search?q=cota%C3%A7%C3%A3o+d%C3%B3lar&cvid=cb9be5bb6bc84224b42fd7c0e148fdb6&gs_lcrp=EgZjaHJvbWUqBggBEAAYQDIGCAAQRRg5MgYIARAAGEAyBggCEAAYQDIGCAMQABhAMgYIBBAAGEAyBggFEAAYQDIGCAYQABhAMgYIBxAAGEAyBggIEEUYPNIBCDUzODhqMGo0qAIAsAIA&FORM=ANAB01&DAF0=1&PC=ACTS"
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"}
+requisicao = requests.get(link)
+print(requisicao)
+
+site = BeautifulSoup(requisicao.text, "html.parser")
+
+cotacao_dolar = site.find("div", class_="b_focusTextSmall curr_totxt")
+
+if cotacao_dolar is not None:
+    print(cotacao_dolar.get_text())
+else:
+    print("Cotação do dólar não encontrada.")
+
+***O erro de ChunkedEncodingError ocorre quando há um problema com o modo como o servidor está enviando os dados de resposta, 
+geralmente envolvendo problemas no formato de codificação Chunked. Uma maneira de contornar esse problema é tentar forçar a desativação da 
+codificação de conteúdo durante a solicitação. Adicionei o parâmetro stream=True à chamada requests.get() e, em seguida, lendo o conteúdo completo 
+da resposta antes de passar para o BeautifulSoup. Esse código envolve a chamada da solicitação dentro de um bloco try-except para capturar 
+possíveis exceções durante a solicitação. Além disso, eu adicionei headers à chamada requests.get() e utilizei stream=True para desativar a 
+codificação de conteúdo.
+
+**Mesmo com a correção o erro persistiu, 3ª tentativa de código:
+
+import requests
+from bs4 import BeautifulSoup
+
+link = "https://www.bing.com/search?q=cota%C3%A7%C3%A3o+d%C3%B3lar&cvid=cb9be5bb6bc84224b42fd7c0e148fdb6&gs_lcrp=EgZjaHJvbWUqBggBEAAYQDIGCAAQRRg5MgYIARAAGEAyBggCEAAYQDIGCAMQABhAMgYIBBAAGEAyBggFEAAYQDIGCAYQABhAMgYIBxAAGEAyBggIEEUYPNIBCDUzODhqMGo0qAIAsAIA&FORM=ANAB01&DAF0=1&PC=ACTS"
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"}
+
+try:
+    requisicao = requests.get(link, headers=headers, stream=True)
+
+    # Verifica se a solicitação foi bem-sucedida
+    requisicao.raise_for_status()
+
+    # Lê o conteúdo completo da resposta antes de passar para o BeautifulSoup
+    content = requisicao.content
+
+    site = BeautifulSoup(content, "html.parser")
+
+    cotacao_dolar = site.find("div", class_="b_focusTextSmall curr_totxt")
+
+    if cotacao_dolar is not None:
+        print(cotacao_dolar.get_text())
+    else:
+        print("Cotação do dólar não encontrada.")
+except requests.exceptions.RequestException as e:
+    print(f"Erro na solicitação: {e}")
+
+
+**Resultado correto:
+PS C:\Users\ditei\OneDrive\Documentos\GitHub\python> & C:/Users/ditei/AppData/Local/Microsoft/WindowsApps/python3.11.exe "c:/Users/ditei/OneDrive/Documentos/GitHub/python/Raspagem de Dados - Beautiful soup"
+5 Real Brasileiro
+PS C:\Users\ditei\OneDrive\Documentos\GitHub\python> 
+
+
