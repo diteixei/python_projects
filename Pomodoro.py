@@ -3,9 +3,9 @@ from tkinter import messagebox
 from ttkbootstrap import ttk, Style
 
 # Alterando os tempos de trabalho e descanso
-WORK_TIME = 30 * 60
-SHORT_BREAK_TIME = 10 * 60
-LONG_BREAK_TIME = 20 * 60
+WORK_TIME = 25 * 60
+SHORT_BREAK_TIME = 5 * 60
+LONG_BREAK_TIME = 10 * 60
 ADJUSTMENT_TIME = 5 * 60
 
 class PomodoroTimer:
